@@ -1,2 +1,4 @@
-module.exports = (config) ->
-  return ->
+
+API = require './api'
+
+module.exports = (config) -> new API config

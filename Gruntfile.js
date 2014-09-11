@@ -7,7 +7,7 @@ module.exports = function(grunt) {
       test: {
 
         options: {
-          reporter: 'nyan',
+          reporter: 'spec',
           clearRequireCache: true,
           require: ['./index.js']
         },
@@ -48,5 +48,6 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-mocha-test');
   // Default task(s).
   grunt.registerTask('default', ['coffee:main', 'mochaTest', 'watch']);
+  grunt.registerTask('test', ['coffee:main', 'mochaTest']);
 
 };
