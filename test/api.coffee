@@ -8,6 +8,7 @@ API = index
 mongoose.model 'Story', new mongoose.Schema
   title: String
   body: String
+  likes: Number
 
 mongoose.model 'User', new mongoose.Schema
   login: String

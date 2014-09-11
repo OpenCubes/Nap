@@ -3,7 +3,10 @@
   "version": "0.0.0",
   "description": "Node API Provider is a highly-configurable express API provider based on mongoose that support authentification and roles",
   "main": "index.js",
-  "dependencies": {},
+  "dependencies": {
+    "q": "~1.0.1",
+    "q-io": "~1.11.4"
+  },
   "devDependencies": {
     "chai": "^1.9.1",
     "coffee-script": "^1.8.0",
@@ -12,7 +15,8 @@
     "grunt-contrib-watch": "^0.6.1",
     "grunt-mocha-test": "^0.11.0",
     "mocha": "^1.21.4",
-    "mongoose": "^3.8.16"
+    "mongoose": "^3.8.16",
+    "mongoose-q": "0.0.12"
   },
   "scripts": {
     "test": "grunt test"
