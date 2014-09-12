@@ -179,3 +179,12 @@ describe 'Model', ->
 
         done()
       .fail done
+
+  describe '#delete()', ->
+    it 'can delete a mod', (done) ->
+      Story.delete(someModel._id).then ->
+        Story.findById someModel._id
+      .then (story) ->
+        should.not.exist story
+        done()
+      .fail done

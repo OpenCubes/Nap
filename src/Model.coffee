@@ -101,6 +101,15 @@ class Model
     deferred.promise
 
   delete: (id) ->
+    deferred = Q.defer()
+
+    @findById(id).then (obj) ->
+      obj.remove (err, result) ->
+        if err then return deferred.reject err
+        deferred.resolve result
+
+    deferred.promise
+
 
 
 
