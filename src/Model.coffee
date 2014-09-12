@@ -64,9 +64,21 @@ class Model
     deferred.promise
 
 
+  findById: (id, query={}) ->
+    deferred = Q.defer()
 
+    q = @model.findById id
 
-  findById: (id) ->
+    select = ""
+    if query.select then for s in query.select.split ','
+      select += " #{s}"
+    q.select select
+    q.exec (err, result) ->
+      return deferred.reject err if err
+      deferred.resolve result
+
+    deferred.promise
+
   create: (props) ->
     deferred = Q.defer()
 
@@ -77,7 +89,16 @@ class Model
 
     deferred.promise
 
-  set: (props) ->
+  set: (id, props) ->
+    deferred = Q.defer()
+
+    @findById(id).then (obj) ->
+      obj.set(key, value) for own key, value of props
+      obj.save (err, result) ->
+        if err then return deferred.reject err
+        deferred.resolve result
+
+    deferred.promise
 
   delete: (id) ->
 

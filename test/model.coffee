@@ -15,6 +15,8 @@ Story = new Model
   collection: "stories"
   likes: "Number"
 
+someModel = undefined
+
 mongoose.connection.collections.users.drop ->
 mongoose.connection.collections.stories.drop ->
 
@@ -39,6 +41,7 @@ describe 'Model', ->
     .then ->
       done()
     .fail done
+
 
   describe "#find()", ->
 
@@ -129,5 +132,50 @@ describe 'Model', ->
 
           for story in stories
             story.likes.should.be.least 7
+
+          someModel = stories[0]
           done()
         .fail done
+
+
+  describe '#findById()', ->
+
+    it 'supports finding one doc', (done) ->
+      Story.findById(someModel._id).then (other) ->
+        other._id.toString().should.equal someModel._id.toString()
+        other.likes.should.equal someModel.likes
+        other.title.should.equal someModel.title
+        other.body.should.equal someModel.body
+        done()
+
+      .fail done
+    it 'supports finding one doc with `select`', (done) ->
+
+      Story.findById(someModel._id, select: 'likes').then (other) ->
+        other._id.toString().should.equal someModel._id.toString()
+        other.likes.should.equal someModel.likes
+        should.not.exist other.title
+        should.not.exist other.body
+        done()
+
+      .fail done
+
+
+  describe '#set()' ,->
+    it 'can set some properties', (done) ->
+      Story.set someModel._id,
+        likes: 2e3
+        title: "King's Landing"
+      .then (result) ->
+        result.likes.should.equal 2e3
+        result.title.should.equal "King's Landing"
+        result._id.toString().should.equal someModel._id.toString()
+
+        Story.findById someModel._id
+      .then (result) ->
+        result.likes.should.equal 2e3
+        result.title.should.equal "King's Landing"
+        result._id.toString().should.equal someModel._id.toString()
+
+        done()
+      .fail done
