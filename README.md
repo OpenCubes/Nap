@@ -1,6 +1,7 @@
 Nap
 ===
 [![Built with Grunt](https://cdn.gruntjs.com/builtwith.png)](http://gruntjs.com/)
+[![Build Status](https://travis-ci.org/OpenCubes/Nap.svg?branch=master)](https://travis-ci.org/OpenCubes/Nap)
 
 The highly-configurable RESTful HTTP service provider made for Express framework and Mongoose
 
