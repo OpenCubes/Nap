@@ -14,39 +14,52 @@ class Model
   find: (query) ->
     deferred = Q.defer()
 
-    query = @model.find()
-    .limit query.limit or 15
-    .skip query.limit or query.offset or 0
-    .select (("#{selection}" for selection in query.select.split(',')).join ' ' if query.select)
-    .populate ("#{populate}" for populate in query.populate.split(',')).join ' '
-    .sort query.sort
+    q = @model.find()
+    q.limit query.limit or 15
+    q.skip query.limit or query.offset or 0
+    if query.sort then q.sort query.sort
 
-    schema = model.schema
+    select = ""
+    if query.select then for s in query.select.split ','
+      select += " #{s}"
+    q.select select
+    #if query.populate then q.populate ("#{populate}" for populate in query.populate.split(',')).join ' '
 
-    where = _.pick query, Object.keys(schema.path)
+
+    schema = @model.schema
+
+    where = _.pick query, Object.keys(schema.paths)
+
+
     for own field, value of where
-      match = /(\W+)(\w+)/.exec value
+      match = /(\W+)?(\w+)/.exec value
       switch match[1]
+
         when ">"
-          if typeof match[2] is "number"
-            query.gt field, match[2] - 0
+          if not isNaN match[2]
+            q.gt field, match[2] - 0
+
         when ">="
-          if typeof match[2] is "number"
-            query.gte field, match[2] - 0
+          if not isNaN match[2]
+            q.gte field, match[2] - 0
+
         when "<"
-          if typeof match[2] is "number"
-            query.lt field, match[2] - 0
+          if not isNaN match[2]
+            q.lt field, match[2] - 0
+
         when "<="
-          if typeof match[2] is "number"
-            query.lte field, match[2] - 0
+          if not isNaN match[2]
+            q.lte field, match[2] - 0
 
         when "~"
-          if typeof match[2] is "number"
-            query.where field, new RegExp(match[2], "gi")
+          q.where field, new RegExp(match[2], "gi")
 
-      query.exec (err, result) ->
-        return deferred.reject(err) if err
-        deferred.resolve result
+        when undefined, "" # =
+          q.where field, match[2]
+
+    q.exec (err, result) ->
+      return deferred.reject(err) if err
+      deferred.resolve result
 
     deferred.promise
 

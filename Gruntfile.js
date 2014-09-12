@@ -20,7 +20,7 @@ module.exports = function(grunt) {
         options: {
           spawn: false,
         },
-        files: 'src/**/*.coffee',
+        files: ['src/**/*.coffee', 'test/**/*.coffee'],
         tasks: ['coffee:main', 'mochaTest']
       }
     },
@@ -46,6 +46,7 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-contrib-coffee');
   grunt.loadNpmTasks('grunt-contrib-watch');
   grunt.loadNpmTasks('grunt-mocha-test');
+
   // Default task(s).
   grunt.registerTask('default', ['coffee:main', 'mochaTest', 'watch']);
   grunt.registerTask('test', ['coffee:main', 'mochaTest']);
