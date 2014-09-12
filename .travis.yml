@@ -3,13 +3,14 @@ services:
 
 before_script:
   - sleep 15
-  - mongo tests --eval 'db.addUser("travis", "test");'
 
 language: node_js
+
 node_js:
   - "0.11"
 
 before_install:
  - npm install -g grunt
-before_script
+
+before_script:
  - grunt test
