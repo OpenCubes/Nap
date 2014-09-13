@@ -2,9 +2,6 @@ Q = require 'q'
 _ = require 'lodash'
 
 class Model
-  model: undefined
-  collection: ""
-  authorizations: {}
   authorship: "author"
 
   constructor: (options) ->

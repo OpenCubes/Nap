@@ -4,6 +4,7 @@ mongoose = require "mongoose"
 mongoose.connect 'mongodb://localhost:27017/'
 API = index
   mongoose: mongoose
+  name: "APITest"
 
 mongoose.model 'Story', new mongoose.Schema
   title: String
@@ -19,7 +20,7 @@ describe 'API', ->
   it 'have a `add` function', ->
     API.add.should.be.a 'function'
 
-  it 'adds new routes to the stack', ->
+  it 'should add new routes to the stack', ->
     result = API.add model: 'Story'
 
     result.should.equal 1
@@ -29,21 +30,21 @@ describe 'API', ->
     result.should.equal 2
 
 
-  it 'injects routes to the router', ->
+  it 'should inject routes to the router', ->
     routes = {}
 
     # Creates express router mock that adds routes to previous object
     routerMock =
       get: (url, route) ->
         routes["GET #{url}"] = route
-      post: (url, route) ->
+      post: (url, mw, route) ->
         routes["POST #{url}"] = route
       delete: (url, route) ->
         routes["DELETE #{url}"] = route
-      put: (url, route) ->
+      put: (url, mw, route) ->
         routes["PUT #{url}"] = route
 
-    API.inject routerMock
+    API.inject routerMock, ->
 
     # These are the routes that should be generated
     expected = [

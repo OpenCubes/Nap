@@ -2,6 +2,8 @@ _ = require "lodash"
 
 auth = require "./authorizations"
 Provider = require "./Provider"
+multipart = require('connect-multiparty')
+multipartMiddleware = multipart()
 
 DEFAULTS =
   authGroups: ['guest', 'user', 'admin']
@@ -12,10 +14,8 @@ DEFAULTS =
 
 class API
 
-  _stack: []
 
   constructor: (options) ->
-
     if not options.mongoose or options.mongoose.constructor.name isnt "Mongoose"
       throw new Error("Expected options.mongoose to be a Mongoose
         instance but got #{options.mongoose}")
@@ -24,28 +24,28 @@ class API
 
     @mongoose = @options.mongoose
 
+    @_stack = []
+
   add: (options) ->
     model = @mongoose.model options.model
-
     @_stack.push new Provider(model: model, collection: model.collection.name)
 
-  inject: (router) ->
-
+  inject: (app, bodyParser) ->
     for provider in @_stack
 
-      router.get      "#{@options.domain}#{provider.routeBaseName}", provider.index
+      app.get      "#{@options.domain}#{provider.routeBaseName}", provider.index
 
-      router.post     "#{@options.domain}#{provider.routeBaseName}", provider.post
+      app.post     "#{@options.domain}#{provider.routeBaseName}", bodyParser(), provider.post
 
 
 
-      router.get      "#{@options.domain}#{provider.routeBaseName}/:id", provider.get
+      app.get      "#{@options.domain}#{provider.routeBaseName}/:id", provider.get
 
-      router.put      "#{@options.domain}#{provider.routeBaseName}/:id", provider.put
+      app.put      "#{@options.domain}#{provider.routeBaseName}/:id", bodyParser(), provider.put
 
-      router.delete   "#{@options.domain}#{provider.routeBaseName}/:id", provider.delete
+      app.delete   "#{@options.domain}#{provider.routeBaseName}/:id", provider.delete
 
-      router.get      "#{@options.domain}#{provider.routeBaseName}/:id/:collection",
+      app.get      "#{@options.domain}#{provider.routeBaseName}/:id/:collection",
         provider.subdoc
 
 module.exports = API
