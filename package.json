@@ -1,6 +1,6 @@
 {
   "name": "Nap",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "Node API Provider is a highly-configurable express API provider based on mongoose that support authentification and roles",
   "main": "index.js",
   "dependencies": {
