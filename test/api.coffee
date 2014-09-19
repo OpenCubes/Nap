@@ -35,13 +35,13 @@ describe 'API', ->
 
     # Creates express router mock that adds routes to previous object
     routerMock =
-      get: (url, route) ->
+      get: (url, mw2, mw3, route) ->
         routes["GET #{url}"] = route
-      post: (url, mw, route) ->
+      post: (url, mw, mw2, mw3, route) ->
         routes["POST #{url}"] = route
-      delete: (url, route) ->
+      delete: (url, mw2, mw3, route) ->
         routes["DELETE #{url}"] = route
-      put: (url, mw, route) ->
+      put: (url, mw, mw2, mw3, route) ->
         routes["PUT #{url}"] = route
 
     API.inject routerMock, ->

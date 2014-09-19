@@ -18,7 +18,7 @@ api.inject(app);
 
 ### `globalOptions`
 
-  - [ ] `authGroups`: an array containing all the different groups, ordered for a
+  - [ ] `authGroups`: an array containing all the different groups, ordered for 
     waterfall (last groups inherits the first group autorizations) (ex: `['guest'])
 
   - [ ] `getRole`: a function called wth two arguments, `userId` the id string,

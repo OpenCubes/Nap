@@ -7,8 +7,6 @@ multipartMiddleware = multipart()
 
 DEFAULTS =
   authGroups: ['guest', 'user', 'admin']
-  getRole: (userId, callback) -> callback 'admin'
-  canThis: auth.canThis
   mongoose: undefined
   domain: "/api"
 
@@ -26,26 +24,24 @@ class API
 
     @_stack = []
 
-  add: (options) ->
+  add: (options) =>
     model = @mongoose.model options.model
     @_stack.push new Provider(model: model, collection: model.collection.name)
 
-  inject: (app, bodyParser) ->
+  inject: (app, bodyParser, login, canThis=(req, res, next)->next()) ->
     for provider in @_stack
 
-      app.get      "#{@options.domain}#{provider.routeBaseName}", provider.index
+      app.get      "#{@options.domain}#{provider.routeBaseName}", login, canThis, provider.index
 
-      app.post     "#{@options.domain}#{provider.routeBaseName}", bodyParser(), provider.post
+      app.post     "#{@options.domain}#{provider.routeBaseName}", login, canThis, bodyParser(), provider.post
 
+      app.get      "#{@options.domain}#{provider.routeBaseName}/:id", login, canThis, provider.get
 
+      app.put      "#{@options.domain}#{provider.routeBaseName}/:id", login, canThis, bodyParser(), provider.put
 
-      app.get      "#{@options.domain}#{provider.routeBaseName}/:id", provider.get
-
-      app.put      "#{@options.domain}#{provider.routeBaseName}/:id", bodyParser(), provider.put
-
-      app.delete   "#{@options.domain}#{provider.routeBaseName}/:id", provider.delete
+      app.delete   "#{@options.domain}#{provider.routeBaseName}/:id", login, canThis, provider.delete
 
       app.get      "#{@options.domain}#{provider.routeBaseName}/:id/:collection",
-        provider.subdoc
+        login, canThis, provider.subdoc
 
 module.exports = API

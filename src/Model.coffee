@@ -8,7 +8,8 @@ class Model
     _.assign @, options
     @routeBaseName = "/#{@collection}"
 
-  find: (query) ->
+  find: (query, flag, id) ->
+
     deferred = Q.defer()
 
     q = @model.find()
@@ -61,10 +62,10 @@ class Model
     deferred.promise
 
 
-  findById: (id, query={}) ->
+  findById: (oid, query={}) ->
     deferred = Q.defer()
 
-    q = @model.findById id
+    q = @model.findById oid
 
     select = ""
     if query.select then for s in query.select.split ','
@@ -76,8 +77,10 @@ class Model
 
     deferred.promise
 
-  create: (props) ->
+  create: (props, flag, id) ->
     deferred = Q.defer()
+
+    if not flag then deferred.reject new Error(401)
 
     obj = new @model props
     obj.save (err, result) ->
@@ -86,10 +89,10 @@ class Model
 
     deferred.promise
 
-  set: (id, props) ->
+  set: (oid, props, allow, user) ->
     deferred = Q.defer()
-
-    @findById(id).then (obj) ->
+    @findById(oid).then (obj) ->
+      if not allow then return deferred.reject new Error(401)
       obj.set(key, value) for own key, value of props
       obj.save (err, result) ->
         if err then return deferred.reject err
@@ -97,10 +100,11 @@ class Model
 
     deferred.promise
 
-  delete: (id) ->
+  delete: (oid, allow, user) ->
     deferred = Q.defer()
 
-    @findById(id).then (obj) ->
+    @findById(oid).then (obj) ->
+      if not allow then return deferred.reject new Error(401)
       obj.remove (err, result) ->
         if err then return deferred.reject err
         deferred.resolve result

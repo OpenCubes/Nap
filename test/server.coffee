@@ -28,13 +28,17 @@ app.get "/", (req, res) ->
   return
 api = nap
   mongoose: mongoose
-  name: "Server"
 api.add
   model: 'Story'
-api.inject(app, express.bodyParser)
-
+api.inject(app, express.bodyParser, (req, res, next) ->
+  req.user =
+    username: "Foo"
+  next()
+, (req, res, next) ->
+  req.allow = true
+  next()
+)
 fixtures = {}
-
 someModel = {}
 
 request = require('supertest')(app)

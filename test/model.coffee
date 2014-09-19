@@ -6,7 +6,7 @@ index = require('../index')
 mongoose = require("mongoose-q")()
 Model = require "../src/model"
 Q = require "q"
-user = new Model
+User = new Model
   model: mongoose.model "User"
   collection: "users"
 
@@ -14,6 +14,8 @@ Story = new Model
   model: mongoose.model "Story"
   collection: "stories"
   likes: "Number"
+
+user = {}
 
 someModel = undefined
 
@@ -32,7 +34,7 @@ describe 'Model', ->
       promises = []
 
       for fixture in fixtures.users
-        promises.push user.create fixture
+        promises.push User.create fixture
 
       for fixture in fixtures.stories
         promises.push Story.create fixture
@@ -46,12 +48,13 @@ describe 'Model', ->
   describe "#find()", ->
 
     it 'supports no parameter', (done) ->
-      Story.find({}).then (stories) ->
+      @timeout 5000
+      Story.find({}, true, user).then (stories) ->
         stories.should.have.length 12
         done()
 
     it 'supports `sort` parameter', (done) ->
-      Story.find(sort: "likes").then (stories)->
+      Story.find(sort: "likes", true, user).then (stories)->
         oldLikeCount = 0
         for s in stories
           oldLikeCount.should.be.at.most s.likes
@@ -60,19 +63,19 @@ describe 'Model', ->
       .fail done
 
     it 'supports `limit` parameter', (done) ->
-      Story.find(limit: 3).then (stories)->
+      Story.find(limit: 3, true, user).then (stories)->
         stories.should.have.length 3
         done()
       .fail done
 
     it 'supports `skip` parameter', (done) ->
-      Story.find(offset: 3).then (stories)->
+      Story.find(offset: 3, true, user).then (stories)->
         stories.should.have.length 9
         done()
       .fail done
 
     it 'supports `select` parameter', (done) ->
-      Story.find(select: 'likes').then (stories)->
+      Story.find(select: 'likes', true, user).then (stories)->
         stories.should.have.length 12
         for s in stories
           should.not.exist s.title
@@ -91,7 +94,7 @@ describe 'Model', ->
     describe 'where', ->
 
       it 'supports `=`', (done) ->
-        Story.find(likes: '7').then (stories)->
+        Story.find(likes: '7', true, user).then (stories)->
           stories.should.have.length 2
           stories.should.all.have.property 'likes', 7
           done()
@@ -100,7 +103,7 @@ describe 'Model', ->
 
 
       it 'supports `<`', (done) ->
-        Story.find(likes: '<7').then (stories)->
+        Story.find(likes: '<7', true, user).then (stories)->
           stories.should.have.length 2
 
           for story in stories
@@ -109,7 +112,7 @@ describe 'Model', ->
         .fail done
 
       it 'supports `<=`', (done) ->
-        Story.find(likes: '<=7').then (stories)->
+        Story.find(likes: '<=7', true, user).then (stories)->
           stories.should.have.length 4
 
           for story in stories
@@ -118,7 +121,7 @@ describe 'Model', ->
         .fail done
 
       it 'supports `>`', (done) ->
-        Story.find(likes: '>7').then (stories)->
+        Story.find(likes: '>7', true, user).then (stories)->
           stories.should.have.length 8
 
           for story in stories
@@ -127,7 +130,7 @@ describe 'Model', ->
         .fail done
 
       it 'supports `>=`', (done) ->
-        Story.find(likes: '>=7').then (stories)->
+        Story.find(likes: '>=7', true, user).then (stories)->
           stories.should.have.length 10
 
           for story in stories
@@ -141,7 +144,7 @@ describe 'Model', ->
   describe '#findById()', ->
 
     it 'supports finding one doc', (done) ->
-      Story.findById(someModel._id).then (other) ->
+      Story.findById(someModel._id, true , user).then (other) ->
         other._id.toString().should.equal someModel._id.toString()
         other.likes.should.equal someModel.likes
         other.title.should.equal someModel.title
@@ -163,15 +166,15 @@ describe 'Model', ->
 
   describe '#set()' ,->
     it 'can set some properties', (done) ->
-      Story.set someModel._id,
+      Story.set(someModel._id,
         likes: 2e3
         title: "King's Landing"
-      .then (result) ->
+      , true, user).then (result) ->
         result.likes.should.equal 2e3
         result.title.should.equal "King's Landing"
         result._id.toString().should.equal someModel._id.toString()
 
-        Story.findById someModel._id
+        Story.findById someModel._id, true, user
       .then (result) ->
         result.likes.should.equal 2e3
         result.title.should.equal "King's Landing"
@@ -182,7 +185,7 @@ describe 'Model', ->
 
   describe '#delete()', ->
     it 'can delete a mod', (done) ->
-      Story.delete(someModel._id).then ->
+      Story.delete(someModel._id, true, user).then ->
         Story.findById someModel._id
       .then (story) ->
         should.not.exist story
