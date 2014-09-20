@@ -20,7 +20,7 @@ passport.use new BasicStrategy((username, pwd, done) ->
   if pwd is "1234" and username is "Foo"
     return done undefined, {
       username: "Foo"
-      role: "admin"
+      role: "user"
       _id: someUser._id
     }
   if pwd is "password" and username is "username"
@@ -28,6 +28,11 @@ passport.use new BasicStrategy((username, pwd, done) ->
       username: "username"
       role: "user"
       _id: otherUser._id
+    }
+  if pwd is "admin" and username is "admin"
+    return done undefined, {
+      username: "admin"
+      role: "admin"
     }
   if pwd is "guest" and username is "guest"
     done undefined, {
@@ -68,17 +73,23 @@ api.add
     delete: 'admin'
 
 api.inject app, express.bodyParser, passport.authenticate("basic", session: false), (req, res, next) ->
+  if req.user.role is "admin"
+    req.allow = true
+    return next()
   req.allow = switch req.method
     when "GET" then true
     when "POST" then if req.user and req.user.role isnt "guest" then true
     when "PUT", "DELETE" then false
 
+
   next()
 
 fooToken = 'Basic Rm9vOjEyMzQ='
+adminToken = 'Basic YWRtaW46YWRtaW4='
 request = require('supertest')(app)
 aStory = {}
 otherStory = {}
+anotherStory = {}
 
 describe 'authorizations', ->
   before (done) ->
@@ -92,7 +103,7 @@ describe 'authorizations', ->
         done()
   it 'should connect the server with passport', (done) ->
      request.get('/').set('Authorization', fooToken).end (err, res) ->
-       res.body.should.deep.equal username: 'Foo', role: 'admin', _id: someUser._id.toString()
+       res.body.should.deep.equal username: 'Foo', role: 'user', _id: someUser._id.toString()
        done()
   describe 'guests', ->
     it 'should have access to stories', (done) ->
@@ -206,6 +217,90 @@ describe 'authorizations', ->
     it 'should be able to delete his mod', (done) ->
       req = request.delete("/api/stories/#{otherStory._id}")
       req.set 'Authorization', token
+      req.end (err, res) ->
+        try
+          if err then return done err
+          res.statusCode.should.equal 200
+          request.get("/api/stories/#{otherStory._id}").end (err, res) ->
+            if err then done err
+            res.body.should.deep.equal {}
+            done()
+        catch err
+          done err
+
+
+  describe 'admins', ->
+    before (done) ->
+      token = "Basic dXNlcm5hbWU6cGFzc3dvcmQ=" # username:password
+      req = request.post("/api/stories")
+      req.set 'Authorization', token
+      req.send title: "This is a title", body: "This is a bodty"
+      req.end (err, res) ->
+        if err then return done err
+        res.statusCode.should.equal 200
+        otherStory = res.body
+        done()
+
+    it 'should be able to post a mod', (done) ->
+      req = request.post("/api/stories")
+      req.set 'Authorization', adminToken
+      req.send title: "This is a title", body: "This is a bodty"
+      req.end (err, res) ->
+        try
+          if err then return done err
+          res.statusCode.should.equal 200
+          anotherStory = res.body
+          done()
+        catch err
+          done err
+
+    it 'should be able to put his mod', (done) ->
+      req = request.put("/api/stories/#{anotherStory._id}")
+      req.set 'Authorization', adminToken
+      req.send title: "This is another title"
+      req.end (err, res) ->
+        try
+          if err then return done err
+          res.statusCode.should.equal 200
+          res.body.title.should.equal "This is another title"
+          done()
+        catch err
+          done err
+
+    it 'should be able to put one\'s mod', (done) ->
+      req = request.put("/api/stories/#{otherStory._id}")
+      req.set 'Authorization', adminToken
+      req.send title: "This is indeed another title"
+      req.end (err, res) ->
+        try
+          if err then return done err
+          res.statusCode.should.equal 200
+          request.get("/api/stories/#{otherStory._id}").end (err, res) ->
+            if err then done err
+
+            res.body.title.should.equal "This is indeed another title"
+            done()
+        catch err
+          done err
+
+    it 'should be able to delete one\'s mod', (done) ->
+      req = request.delete("/api/stories/#{otherStory._id}")
+      req.set 'Authorization', adminToken
+      req.end (err, res) ->
+        try
+          if err then return done err
+          res.statusCode.should.equal 200
+          request.get("/api/stories/#{otherStory._id}").end (err, res) ->
+            if err then done err
+
+            res.body.should.deep.equal {}
+            done()
+        catch err
+          done err
+
+    it 'should be able to delete his mod', (done) ->
+      req = request.delete("/api/stories/#{anotherStory._id}")
+      req.set 'Authorization', adminToken
       req.end (err, res) ->
         try
           if err then return done err

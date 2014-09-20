@@ -12,6 +12,18 @@ module.exports = function(grunt) {
           require: ['./index.js']
         },
         src: ['test/**/*.coffee']
+      },
+      report: {
+
+        options: {
+          reporter: 'markdown',
+          clearRequireCache: true,
+          require: ['./index.js'],
+
+          log: false,
+        },
+        src: ['test/**/*.coffee'],
+        dest: './FEATURES.md'
       }
 
     },
@@ -21,7 +33,7 @@ module.exports = function(grunt) {
           spawn: false,
         },
         files: ['src/**/*.coffee', 'test/**/*.coffee'],
-        tasks: ['coffee:main', 'mochaTest']
+        tasks: ['coffee:main', 'mochaTest:test']
       }
     },
     coffee: {
@@ -48,7 +60,8 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-mocha-test');
 
   // Default task(s).
-  grunt.registerTask('default', ['coffee:main', 'mochaTest', 'watch']);
-  grunt.registerTask('test', ['coffee:main', 'mochaTest']);
+  grunt.registerTask('default', ['coffee:main', 'mochaTest:test', 'watch']);
+  grunt.registerTask('test', ['coffee:main', 'mochaTest:test']);
+  grunt.registerTask('report', ['coffee:main', 'mochaTest:report']);
 
 };
