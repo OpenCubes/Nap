@@ -8,6 +8,7 @@ multipartMiddleware = multipart()
 DEFAULTS =
   authGroups: ['guest', 'user', 'admin']
   mongoose: undefined
+  authorship: "author"
   domain: "/api"
 
 class API
@@ -26,7 +27,11 @@ class API
 
   add: (options) =>
     model = @mongoose.model options.model
-    @_stack.push new Provider(model: model, collection: model.collection.name)
+    @_stack.push new Provider(
+      model: model
+      collection: model.collection.name
+      authorship: options.authorship
+    )
 
   inject: (app, bodyParser, login, canThis=(req, res, next)->next()) ->
     for provider in @_stack

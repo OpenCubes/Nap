@@ -6,15 +6,16 @@ API = index
   mongoose: mongoose
   name: "APITest"
 
-mongoose.model 'Story', new mongoose.Schema
-  title: String
-  body: String
-  likes: Number
-
 mongoose.model 'User', new mongoose.Schema
   login: String
   pwd: String
 
+
+mongoose.model 'Story', new mongoose.Schema
+  title: String
+  body: String
+  likes: Number
+  author: { type: mongoose.Schema.Types.ObjectId, ref: 'User' }
 
 describe 'API', ->
   it 'have a `add` function', ->

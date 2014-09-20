@@ -15,6 +15,7 @@ class Provider
     @napModel = new NapModel
       model: @model
       collection: @collection
+      authorship: @authorship
 
     @routeBaseName = "/#{@collection}"
 
@@ -57,7 +58,7 @@ class Provider
       if not isNaN err.message
         res.send err.message - 0
       else next err
-        
+
   get: (req, res, next) =>
 
     format = @format

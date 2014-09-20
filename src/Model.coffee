@@ -2,7 +2,6 @@ Q = require 'q'
 _ = require 'lodash'
 
 class Model
-  authorship: "author"
 
   constructor: (options) ->
     _.assign @, options
@@ -79,10 +78,11 @@ class Model
 
   create: (props, flag, id) ->
     deferred = Q.defer()
-
     if not flag then deferred.reject new Error(401)
 
     obj = new @model props
+    if @authorship and id
+      obj.set @authorship, id
     obj.save (err, result) ->
       if err then return deferred.reject err
       deferred.resolve result
@@ -91,8 +91,13 @@ class Model
 
   set: (oid, props, allow, user) ->
     deferred = Q.defer()
-    @findById(oid).then (obj) ->
-      if not allow then return deferred.reject new Error(401)
+    @findById(oid).then (obj) =>
+      if not allow
+        if @authorship and obj[@authorship]?.toString() isnt user?.toString()
+          return deferred.reject new Error(403)
+        if not user or user.username is "guest"
+          return deferred.reject new Error(401)
+      if not obj then return deferred.resolve {}
       obj.set(key, value) for own key, value of props
       obj.save (err, result) ->
         if err then return deferred.reject err
@@ -103,8 +108,13 @@ class Model
   delete: (oid, allow, user) ->
     deferred = Q.defer()
 
-    @findById(oid).then (obj) ->
-      if not allow then return deferred.reject new Error(401)
+    @findById(oid).then (obj) =>
+      if not obj then return deferred.resolve {}
+      if not allow
+        if @authorship and obj[@authorship]?.toString() isnt user?.toString()
+          return deferred.reject new Error(403)
+        if not user or user.username is "guest"
+          return deferred.reject new Error(401)
       obj.remove (err, result) ->
         if err then return deferred.reject err
         deferred.resolve result
