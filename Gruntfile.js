@@ -33,7 +33,7 @@ module.exports = function(grunt) {
           spawn: false,
         },
         files: ['src/**/*.coffee', 'test/**/*.coffee'],
-        tasks: ['coffee:main', 'mochaTest:test']
+        tasks: ['mochaTest:test', 'coffee:main']
       }
     },
     coffee: {

@@ -7,7 +7,7 @@ class Model
     _.assign @, options
     @routeBaseName = "/#{@collection}"
 
-  find: (query, flag, id) ->
+  find: (query={}, flag, id) ->
 
     deferred = Q.defer()
 
