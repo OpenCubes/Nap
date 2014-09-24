@@ -20,10 +20,10 @@ module.exports = function(grunt) {
           clearRequireCache: true,
           require: ['./index.js'],
 
-          log: false,
+          quiet: true,
+          captureFile: 'FEATURES.md',
         },
         src: ['test/**/*.coffee'],
-        dest: './FEATURES.md'
       }
 
     },

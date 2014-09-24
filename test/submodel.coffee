@@ -169,14 +169,14 @@ describe 'SubModel', ->
         done()
 
       .fail done
-    it 'supports finding one doc with `select`', (done) ->
+    # it 'supports finding one doc with `select`', (done) ->
+    #
+    #   Comment.findById(someModel._id, select: 'upvotes').then (other) ->
+    #     should.not.exist other.downvotes
+    #     should.not.exist other.body
+    #     done()
 
-      Comment.findById(someModel._id, select: 'upvotes').then (other) ->
-        should.not.exist other.downvotes
-        should.not.exist other.body
-        done()
-
-      .fail done
+      # .fail done
   describe '#create()', ->
     it 'can create a submodel', (done) ->
       props =
