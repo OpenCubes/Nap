@@ -1,6 +1,7 @@
 _ = require 'lodash'
 Q = require 'q'
 NapModel = require './Model'
+SubModel = require './SubModel'
 
 class Provider
   model: ""
@@ -11,11 +12,21 @@ class Provider
 
   constructor: (options) ->
     _.assign @, options
-
-    @napModel = new NapModel
-      model: @model
-      collection: @collection
-      authorship: @authorship
+    if not options.submodel
+      @napModel = new NapModel
+        model: @model
+        collection: @collection
+        authorship: @authorship
+        location: @collection
+        link: @
+    else
+      @napModel = new SubModel
+        model: @model
+        collection: @collection
+        authorship: @authorship
+        location: @collection
+        link: @link
+        paths: @paths
 
     @routeBaseName = "/#{@collection}"
 
@@ -74,7 +85,7 @@ class Provider
 
     format = @format
 
-    @napModel.create(req.body, req.allow, if req.user then req.user._id).then (result) ->
+    @napModel.create(_.assign(req.body, req.query), req.allow, if req.user then req.user._id).then (result) ->
       res.json format(result)
     .fail (err) =>
       if not isNaN err.message

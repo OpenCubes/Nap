@@ -74,9 +74,10 @@ class SubModel extends Model
         when undefined, "" # =
           if not isNaN value then value = value - 0
           match[field] = value
+    oid =  @model.base.Types.ObjectId(query[@link])
     pipelines = [ # Use lodash compact to remove any undefined value
       {
-        $match: {_id: query[@link]}
+        $match: {_id: oid}
       },
       {
         $unwind: "$#{@location}"

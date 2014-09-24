@@ -32,6 +32,18 @@ class API
       collection: model.collection.name
       authorship: options.authorship
     )
+    for sub in (options.submodels or [])
+      @_stack.push new Provider(
+        model: model
+        collection: sub
+        authorship: options.authorship
+        submodel: true
+        location: sub
+        link: options.model.toLowerCase()
+        paths: Object.keys(model?.schema?.paths[sub]?.schema?.paths or {})
+
+      )
+    @_stack.length
 
   inject: (app, bodyParser, login, canThis=(req, res, next)->next()) ->
     for provider in @_stack

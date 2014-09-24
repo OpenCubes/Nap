@@ -33,7 +33,7 @@ module.exports = function(grunt) {
           spawn: false,
         },
         files: ['src/**/*.coffee', 'test/**/*.coffee'],
-        tasks: ['mochaTest:test', 'coffee:main']
+        tasks: ['coffee:main', 'mochaTest:test']
       }
     },
     coffee: {
@@ -62,6 +62,7 @@ module.exports = function(grunt) {
   // Default task(s).
   grunt.registerTask('default', ['coffee:main', 'mochaTest:test', 'watch']);
   grunt.registerTask('test', ['coffee:main', 'mochaTest:test']);
+  grunt.registerTask('build', ['coffee:main']);
   grunt.registerTask('report', ['coffee:main', 'mochaTest:report']);
 
 };

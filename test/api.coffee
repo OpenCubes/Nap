@@ -15,6 +15,7 @@ mongoose.model 'Story', new mongoose.Schema
   title: String
   body: String
   likes: Number
+  comments: {foo: String, bar: String}
   author: { type: mongoose.Schema.Types.ObjectId, ref: 'User' }
 
 describe 'API', ->
@@ -22,13 +23,13 @@ describe 'API', ->
     API.add.should.be.a 'function'
 
   it 'should add new routes to the stack', ->
-    result = API.add model: 'Story'
+    result = API.add model: 'Story', submodels: ['comments']
 
-    result.should.equal 1
+    result.should.equal 2
 
     result = API.add model: 'User'
 
-    result.should.equal 2
+    result.should.equal 3
 
 
   it 'should inject routes to the router', ->
@@ -61,7 +62,14 @@ describe 'API', ->
       "GET /api/users/:id/:collection",
       "PUT /api/users/:id",
       "DELETE /api/users/:id"
-      "POST /api/users"
+      "POST /api/users",
+
+      "GET /api/comments",
+      "GET /api/comments/:id",
+      "GET /api/comments/:id/:collection",
+      "PUT /api/comments/:id",
+      "DELETE /api/comments/:id"
+      "POST /api/comments"
     ]
 
     # Check everything is ok
